@@ -1,44 +1,45 @@
 import { StyleSheet } from "react-native";
+import { colors,fonts,radius,spacing } from "../../theme/index";
 
 export default StyleSheet.create({
   container: {
     width: "75%",
   },
   label: {
-    fontSize: 14,
-    color: "#333",
-    marginBottom: 6,
+    fontSize: fonts.sizes.medium, 
+    color: colors.text.secondary,
+    marginBottom: spacing.tiny + spacing.smallMedium / 2, 
   },
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "black",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    backgroundColor: "#fff",
-    height: 56, 
+    borderColor: colors.neutral.black,
+    borderRadius: radius.medium,
+    paddingHorizontal: spacing.smallMedium, // 12px
+    backgroundColor: colors.neutral.white,
+    height: spacing.large * 1.75, // 56px
   },
   input: {
     flex: 1,
-    fontSize: 15,
-    color: "#4b3d2fff",
-    paddingVertical: 4,
-    paddingHorizontal: 4,
+    fontSize: fonts.sizes.mediumLarge, // 20
+    color: colors.teal.dark,
+    paddingVertical: spacing.tiny,
+    paddingHorizontal: spacing.tiny,
   },
   icon: {
-    width: 24,
-    height: 24,
+    width: spacing.medium,
+    height: spacing.medium,
     resizeMode: "contain",
   },
   eyeWrapper: {
-    padding: 6,
+    padding: spacing.smallMedium / 2, 
     justifyContent: "center",
     alignItems: "center",
   },
   eyeIcon: {
-    width: 24,
-    height: 24,
+    width: spacing.medium,
+    height: spacing.medium,
     resizeMode: "contain",
   },
 });

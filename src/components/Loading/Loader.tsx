@@ -3,7 +3,6 @@ import {
   View,
   ActivityIndicator,
   StyleProp,
-  ViewStyle,
   TextStyle,
 } from "react-native";
 import React from "react";

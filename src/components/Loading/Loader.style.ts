@@ -10,13 +10,13 @@ export default StyleSheet.create({
     bottom: 0,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor:colors.status.loading,
     zIndex: 9999,
   },
 
   indicatorTextStyle: {
-    marginBottom: 10,
-    fontSize: 25,
-    color: "white",
+    marginBottom: spacing.small, 
+    fontSize: fonts.sizes.large, 
+    color: colors.neutral.white,
   },
 });

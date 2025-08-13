@@ -1,24 +1,25 @@
 import { StyleSheet } from "react-native";
+import { colors, fonts, radius, spacing } from "../../theme/index";
 
 export default StyleSheet.create({
   defaultButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 8, 
-    paddingHorizontal: 20, 
-    width: 300, 
-    backgroundColor: "#007AFF",
-    borderRadius: 8,
-    margin: 5,
+    paddingVertical: spacing.small,
+    paddingHorizontal: spacing.medium,
+    width: 300,
+    backgroundColor: colors.primary.dark,
+    borderRadius: radius.medium,
+    margin: spacing.small,
   },
   defaultButtonText: {
-    color: "black",
-    fontSize: 16,
-    fontWeight: "bold",
+    color: colors.primary.dark,
+    fontSize: fonts.sizes.medium,
+    fontWeight: fonts.weights.bold 
   },
   defaultButtonImageStyle: {
-    width: 200,
-    height: 200,
+    width: spacing.xxlarge,
+    height: spacing.xxlarge,
   },
 });
