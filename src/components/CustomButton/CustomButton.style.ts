@@ -3,20 +3,15 @@ import { colors, fonts, radius, spacing } from "../../theme/index";
 
 export default StyleSheet.create({
   defaultButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: spacing.small,
-    paddingHorizontal: spacing.medium,
-    width: 300,
+    width: 250,
+    height:50,
     backgroundColor: colors.primary.dark,
     borderRadius: radius.medium,
-    margin: spacing.small,
   },
   defaultButtonText: {
     color: colors.primary.dark,
     fontSize: fonts.sizes.medium,
-    fontWeight: fonts.weights.bold 
+    fontWeight: fonts.weights.bold as any
   },
   defaultButtonImageStyle: {
     width: spacing.xxlarge,

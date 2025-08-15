@@ -14,7 +14,7 @@ import {
 import styles from "./CustomImage.style";
 
 interface CustomImageList {
-  source: ImageSourcePropType;
+  source?: ImageSourcePropType;
   containerStyle?: StyleProp<ViewStyle>;
   imageStyle?: StyleProp<ImageStyle>;
   placeholderSource?: ImageSourcePropType;
@@ -28,7 +28,7 @@ interface CustomImageList {
 const CustomImage: React.FC<CustomImageList> = ({
   source,
   containerStyle,
-  imageStyle,
+  imageStyle={},
   placeholderSource,
   resizeMode = "contain",
   accessibilityLabel = "",

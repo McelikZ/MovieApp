@@ -16,13 +16,13 @@ export default StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.neutral.black,
     borderRadius: radius.medium,
-    paddingHorizontal: spacing.smallMedium, // 12px
+    paddingHorizontal: spacing.smallMedium, 
     backgroundColor: colors.neutral.white,
-    height: spacing.large * 1.75, // 56px
+    height: spacing.large * 1.75, 
   },
   input: {
     flex: 1,
-    fontSize: fonts.sizes.mediumLarge, // 20
+    fontSize: fonts.sizes.mediumLarge,
     color: colors.teal.dark,
     paddingVertical: spacing.tiny,
     paddingHorizontal: spacing.tiny,

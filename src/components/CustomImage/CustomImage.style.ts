@@ -3,7 +3,7 @@ import { colors, fonts, spacing } from "../../theme/index";
 
 export default StyleSheet.create({
   defaultCustomImage: {
-    width: "80%",
+    width: "100%",
     height: 300,
   },
   textStyle: {
