@@ -3,7 +3,7 @@ import { fetchMovie } from "./movieThunk";
 import type { Movie } from "../services/movieAppService";
 
 interface MovieState {
-  moviesByEndpoint: Record<string, Movie[]>; // endpoint bazlı saklama
+  moviesByEndpoint: Record<string, Movie[]>; 
   loadingByEndpoint: Record<string, boolean>;
   errorByEndpoint: Record<string, string | null>;
 }

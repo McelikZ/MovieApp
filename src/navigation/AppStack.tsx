@@ -11,9 +11,10 @@ export type TabParamList = {
   Download: undefined;
 };
 
+// DetailPage parametre alacak şekilde güncelledik
 export type RootStackParamList = {
   MainTabs: undefined;
-  Detail: undefined;
+  DetailPage: { movieId: number; movieTitle?: string };
 };
 
 const Tab = createBottomTabNavigator<TabParamList>();
@@ -26,14 +27,15 @@ const MainTabs: React.FC = () => (
       tabBarShowLabel: false, // label’ları gizle
       tabBarActiveTintColor: "#ffffffff",
       tabBarStyle: {
-        backgroundColor: "#000000ff",
+        backgroundColor: "#0f1010ff",
         position: "absolute",
-        opacity: 0.75,
-        height: 80, // yükseklik artırıldı
+        opacity: 0.9,
+        height: 90, // yükseklik artırıldı
+        borderColor: "black",
       },
       tabBarIconStyle: {
         alignSelf: "center",
-        marginTop:5,
+        marginTop: 10,
       },
     }}
   >
@@ -42,7 +44,7 @@ const MainTabs: React.FC = () => (
       component={HomePage}
       options={{
         tabBarIcon: ({ color, size }) => (
-          <Ionicons name="home-outline" size={size} color={color} />
+          <Ionicons name="home" size={size} color={color} />
         ),
       }}
     />
@@ -51,7 +53,7 @@ const MainTabs: React.FC = () => (
       component={FavoritePage}
       options={{
         tabBarIcon: ({ color, size }) => (
-          <Ionicons name="heart-outline" size={size} color={color} />
+          <Ionicons name="heart" size={size} color={color} />
         ),
       }}
     />
@@ -60,7 +62,7 @@ const MainTabs: React.FC = () => (
       component={HomePage}
       options={{
         tabBarIcon: ({ color, size }) => (
-          <Ionicons name="download-outline" size={size} color={color} />
+          <Ionicons name="download" size={size} color={color} />
         ),
       }}
     />
@@ -69,7 +71,7 @@ const MainTabs: React.FC = () => (
       component={TrendPage}
       options={{
         tabBarIcon: ({ color, size }) => (
-          <Ionicons name="trending-up-outline" size={size} color={color} />
+          <Ionicons name="film" size={size} color={color} />
         ),
       }}
     />
@@ -79,13 +81,17 @@ const MainTabs: React.FC = () => (
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppStack: React.FC = () => (
-  <Stack.Navigator screenOptions={{ headerShown: true }}>
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
     <Stack.Screen
       name="MainTabs"
       component={MainTabs}
       options={{ headerShown: false }}
     />
-    <Stack.Screen name="Detail" component={DetailPage} />
+    <Stack.Screen 
+      name="DetailPage" 
+      component={DetailPage} 
+      options={{ title: "Detail" }}
+    />
   </Stack.Navigator>
 );
 

@@ -7,14 +7,14 @@ export default StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor:'black',
-    paddingBottom:75,
+    
   },
   headerContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent:'space-between',
-    width:'100%',
     paddingHorizontal:10,
+    width:'100%',
   },
 
   contentContainer: {
@@ -22,4 +22,5 @@ export default StyleSheet.create({
     justifyContent: "center",
     alignContent: "center",
   },
+  
 });

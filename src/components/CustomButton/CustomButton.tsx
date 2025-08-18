@@ -18,7 +18,7 @@ interface CustomButtonList {
   isTextOnly?: boolean;
   isImageOnly?: boolean;
   source?: ImageSourcePropType;
-
+  icon?: React.ReactNode; // Ionicons veya başka component
   buttonStyle?: StyleProp<ViewStyle>;
   buttonTextStyle?: StyleProp<TextStyle>;
   imageStyle?: StyleProp<ImageStyle>;
@@ -31,7 +31,7 @@ const CustomButton: React.FC<CustomButtonList> = ({
   isTextOnly = false,
   isImageOnly = false,
   source,
-
+  icon,
   buttonStyle,
   buttonTextStyle,
   imageStyle,
@@ -54,6 +54,14 @@ const CustomButton: React.FC<CustomButtonList> = ({
     );
   }
 
+  if (isImageOnly && icon) {
+    return (
+      <Pressable onPress={onPress} style={buttonStyle}>
+        {icon}
+      </Pressable>
+    );
+  }
+
   return (
     <Pressable onPress={onPress} style={[styles.defaultButton, buttonStyle]}>
       {source && (
@@ -63,6 +71,8 @@ const CustomButton: React.FC<CustomButtonList> = ({
           style={[styles.defaultButtonImageStyle, imageStyle]}
         />
       )}
+
+      {icon && icon}
 
       {showText && (
         <Text style={[styles.defaultButtonText, buttonTextStyle]}>
