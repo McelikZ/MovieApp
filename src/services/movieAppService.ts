@@ -23,7 +23,7 @@ export interface Movie {
       type: string;
     }[];
   };
-  cast?: CastMember[]; // ✅ Cast bilgisi
+  cast?: CastMember[];
 }
 
 const API_KEY = "24f10a55f1f556fa6250794d0f21132f";
@@ -32,48 +32,62 @@ export const IMAGE_URL = "https://image.tmdb.org/t/p/w500";
 
 export const fetchMovieService = async (
   endpoint: string,
-  page = 1
+  pageLimit: number = 3 // you can use that param instead of number
 ): Promise<Movie[]> => {
+  if (!endpoint) {
+    console.error("Endpoint undefined geldi!");
+    return [];
+  }
+
+  const url =
+    endpoint.startsWith("discover") || endpoint.includes("?")
+      ? `${BASE_URL}/${endpoint}`
+      : `${BASE_URL}/movie/${endpoint}`;
+
   try {
-    // Film listesini çek
-    const response = await axios.get<{ results: Movie[] }>(
-      `${BASE_URL}/movie/${endpoint}`,
-      {
+    const allMovies: Movie[] = [];
+
+    for (let page = 1; page <= 1; page++) {
+      const response = await axios.get<{ results: Movie[] }>(url, {
         params: { api_key: API_KEY, language: "en-US", page },
-      }
-    );
+      });
 
-    const moviesWithDetails = await Promise.all(
-      response.data.results.map(async (movie) => {
-        const fullPosterPath = movie.poster_path
-          ? `${IMAGE_URL}${movie.poster_path}`
-          : "";
+      if (!response.data.results || response.data.results.length === 0) break;
 
-        // Videoları çek
-        const videoRes = await axios.get(`${BASE_URL}/movie/${movie.id}/videos`, {
-          params: { api_key: API_KEY, language: "en-US" },
-        });
+      const moviesWithDetails = await Promise.all(
+        response.data.results.map(async (movie) => {
+          const fullPosterPath = movie.poster_path
+            ? `${IMAGE_URL}${movie.poster_path}`
+            : "";
 
-        // Cast bilgilerini çek
-        const castRes = await axios.get(`${BASE_URL}/movie/${movie.id}/credits`, {
-          params: { api_key: API_KEY, language: "en-US" },
-        });
+          const videoRes = await axios.get(
+            `${BASE_URL}/movie/${movie.id}/videos`,
+            { params: { api_key: API_KEY, language: "en-US" } }
+          );
 
-        return {
-          ...movie,
-          fullPosterPath,
-          videos: videoRes.data,
-          cast: castRes.data.cast.slice(0, 10).map((c: any) => ({
-            id: c.id,
-            name: c.name,
-            character: c.character,
-            profile_path: c.profile_path,
-          })),
-        };
-      })
-    );
+          const castRes = await axios.get(
+            `${BASE_URL}/movie/${movie.id}/credits`,
+            { params: { api_key: API_KEY, language: "en-US" } }
+          );
 
-    return moviesWithDetails;
+          return {
+            ...movie,
+            fullPosterPath,
+            videos: videoRes.data,
+            cast: castRes.data.cast?.slice(0, 10).map((c: any) => ({
+              id: c.id,
+              name: c.name,
+              character: c.character,
+              profile_path: c.profile_path,
+            })),
+          };
+        })
+      );
+
+      allMovies.push(...moviesWithDetails);
+    }
+
+    return allMovies;
   } catch (error) {
     console.error("API Error:", error);
     return [];

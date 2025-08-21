@@ -21,12 +21,14 @@ interface CustomTextInputList {
   eyeIconOpen?: ImageSourcePropType;
   eyeIconClosed?: ImageSourcePropType;
   iconSource?: ImageSourcePropType;
+  icon?: React.ReactNode; 
 
   labelPosition?: "top" | "inside";
   multiline?: boolean;
   onPress?: () => void;
 
   placeholderText?: string;
+  placeholderFontSize?: number; 
 
   containerStyle?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
@@ -43,12 +45,14 @@ const CustomTextInput: React.FC<CustomTextInputList> = ({
   eyeIconOpen,
   eyeIconClosed,
   iconSource,
+  icon,
 
   labelPosition = "top",
   multiline = false,
   onPress,
 
   placeholderText = "Optional",
+  placeholderFontSize = 14, 
 
   containerStyle,
   textStyle,
@@ -75,25 +79,23 @@ const CustomTextInput: React.FC<CustomTextInputList> = ({
 
   return (
     <View style={[styles.container, containerStyle]}>
-      {showLabelTop && (
-        <Text style={[styles.label, textStyle]}>{textTitle}</Text>
-      )}
+      {showLabelTop && <Text style={[styles.label, textStyle]}>{textTitle}</Text>}
 
       <TouchableOpacity
         onPress={onPress}
         activeOpacity={onPress ? 0.7 : 1}
         style={[styles.inputWrapper, inputWrapperStyle]}
       >
-        {iconSource && (
-          <Image source={iconSource} style={[styles.icon, iconStyle]} />
-        )}
+        {iconSource && <Image source={iconSource} style={[styles.icon, iconStyle]} />}
+        {icon && icon} 
 
         <TextInput
           style={[
             styles.input,
             textInputStyle,
-            iconSource || isPassword ? { marginLeft: 10 } : undefined,
+            iconSource || isPassword || icon ? { marginLeft: 10 } : undefined,
             multiline && { textAlignVertical: "top" },
+            { fontSize: placeholderFontSize }, 
           ]}
           multiline={multiline}
           placeholder={placeholder}
@@ -106,14 +108,8 @@ const CustomTextInput: React.FC<CustomTextInputList> = ({
         />
 
         {isPassword && eyeIconOpen && eyeIconClosed && (
-          <TouchableOpacity
-            onPress={togglePasswordVisibility}
-            style={styles.eyeWrapper}
-          >
-            <Image
-              source={showPassword ? eyeIconOpen : eyeIconClosed}
-              style={styles.eyeIcon}
-            />
+          <TouchableOpacity onPress={togglePasswordVisibility} style={styles.eyeWrapper}>
+            <Image source={showPassword ? eyeIconOpen : eyeIconClosed} style={styles.eyeIcon} />
           </TouchableOpacity>
         )}
       </TouchableOpacity>

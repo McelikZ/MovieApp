@@ -1,59 +1,74 @@
 import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
-  Dimensions,
   Text,
-  ActivityIndicator,
   Image,
-  TouchableOpacity,
   FlatList,
   ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+  Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
 import YoutubePlayer from "react-native-youtube-iframe";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createSelector } from "@reduxjs/toolkit";
 
 import { fetchMovie } from "../../redux/movieThunk";
 import type { RootState, AppDispatch } from "../../redux/store";
 import { CustomButton } from "../../components";
 import styles from "./DetailPage.style";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RouteProp } from "@react-navigation/native";
 
 const IMAGE_URL = "https://image.tmdb.org/t/p/w500";
-
-export type RootStackParamList = {
-  Home: undefined;
-  Detail: { movieId: number };
-};
-
-type DetailPageNavigationProp = NativeStackNavigationProp<
-  RootStackParamList,
-  "Detail"
->;
-type DetailPageRouteProp = RouteProp<RootStackParamList, "Detail">;
+const { width } = Dimensions.get("window");
 
 type Props = {
-  navigation: DetailPageNavigationProp;
-  route: DetailPageRouteProp;
+  route: { params: { movieId: number; movieTitle?: string } };
+  navigation: any;
 };
 
-const { width } = Dimensions.get("window");
+const endpoints = [
+  "popular",
+  "top_rated",
+  "upcoming",
+  "now_playing",
+  "discover/movie?primary_release_year=2025",
+  "discover/movie?primary_release_date.gte=2025-08-01&primary_release_date.lte=2025-08-31",
+  "discover/movie?with_genres=28",
+  "discover/movie?with_genres=35",
+];
+
+const selectAllMovies = createSelector(
+  (state: RootState) => state.movie.moviesByEndpoint,
+  (_: RootState, endpoints: string[]) => endpoints,
+  (moviesByEndpoint, endpoints) => {
+    return endpoints.map((ep) => moviesByEndpoint[ep] || []).flat();
+  }
+);
+
+const selectLoading = createSelector(
+  (state: RootState) => state.movie.loadingByEndpoint,
+  (_: RootState, endpoints: string[]) => endpoints,
+  (loadingByEndpoint, endpoints) => {
+    return endpoints.some((ep) => loadingByEndpoint[ep]);
+  }
+);
 
 const DetailPage: React.FC<Props> = ({ route, navigation }) => {
   const { movieId } = route.params;
   const dispatch: AppDispatch = useDispatch();
 
-  const movieDetail = useSelector((state: RootState) =>
-    Object.values(state.movie.moviesByEndpoint)
-      .flat()
-      .find((m: any) => m.id === movieId)
+  const allMovies = useSelector((state: RootState) =>
+    selectAllMovies(state, endpoints)
+  );
+  const allLoading = useSelector((state: RootState) =>
+    selectLoading(state, endpoints)
   );
 
-  const loading = useSelector((state: RootState) =>
-    Object.values(state.movie.loadingByEndpoint).some(Boolean)
-  );
+  const movieDetail = allMovies.find((m) => m.id === movieId);
 
   const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -62,8 +77,12 @@ const DetailPage: React.FC<Props> = ({ route, navigation }) => {
   const firstVideoKey = movieDetail?.videos?.results[0]?.key;
 
   useEffect(() => {
-    dispatch(fetchMovie("popular")); //Example
-  }, [dispatch]);
+    endpoints.forEach((ep) => {
+      if (!allMovies.some((m) => m.id === movieId)) {
+        dispatch(fetchMovie({ endpoint: ep }));
+      }
+    });
+  }, [dispatch, allMovies, movieId]);
 
   useEffect(() => {
     if (firstVideoKey) {
@@ -80,8 +99,72 @@ const DetailPage: React.FC<Props> = ({ route, navigation }) => {
     }
   }, []);
 
-  if (loading || !movieDetail)
-    return <ActivityIndicator size="large" color="white" />;
+  const handleAddToFavorites = async (movieId: number) => {
+    try {
+      const stored = await AsyncStorage.getItem("favorites");
+      let favorites: number[] = stored ? JSON.parse(stored).map(Number) : [];
+      if (!favorites.includes(movieId)) {
+        favorites.push(movieId);
+        await AsyncStorage.setItem("favorites", JSON.stringify(favorites));
+        Alert.alert(
+          "Added to Favorites",
+          "The movie has been added to your favorites."
+        );
+      } else {
+        Alert.alert(
+          "Already in Favorites",
+          "This movie is already in your favorites."
+        );
+      }
+    } catch (e) {
+      console.log(e);
+      Alert.alert("Error", "An error occurred while adding to favorites.");
+    }
+  };
+
+  const handleRemoveFromFavorites = async (movieId: number) => {
+    try {
+      const stored = await AsyncStorage.getItem("favorites");
+      let favorites: number[] = stored ? JSON.parse(stored).map(Number) : [];
+      if (favorites.includes(movieId)) {
+        favorites = favorites.filter((id) => id !== movieId);
+        await AsyncStorage.setItem("favorites", JSON.stringify(favorites));
+        Alert.alert(
+          "Removed from Favorites",
+          "The movie has been removed from your favorites."
+        );
+      } else {
+        Alert.alert("Not in Favorites", "This movie is not in your favorites.");
+      }
+    } catch (e) {
+      console.log(e);
+      Alert.alert("Error", "An error occurred while removing from favorites.");
+    }
+  };
+
+  if (allLoading && !movieDetail) {
+    return (
+      <SafeAreaView style={styles.mainContainer}>
+        <ActivityIndicator
+          size="large"
+          color="white"
+          style={{ marginTop: 50 }}
+        />
+      </SafeAreaView>
+    );
+  }
+
+  if (!movieDetail) {
+    return (
+      <SafeAreaView style={styles.mainContainer}>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <Text style={{ color: "white" }}>Film bulunamadı</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.mainContainer}>
@@ -89,38 +172,36 @@ const DetailPage: React.FC<Props> = ({ route, navigation }) => {
         contentContainerStyle={{ paddingBottom: 20 }}
         showsVerticalScrollIndicator={false}
       >
-        {playingVideoId && (
-          <>
-            {previewMode ? (
-              <TouchableOpacity
-                onPress={() => {
-                  setPreviewMode(false);
-                  setTimeout(() => setIsPlaying(true), 100);
+        {playingVideoId &&
+          (previewMode ? (
+            <TouchableOpacity
+              onPress={() => {
+                setPreviewMode(false);
+                setTimeout(() => setIsPlaying(true), 100);
+              }}
+            >
+              <Image
+                source={{
+                  uri: `https://img.youtube.com/vi/${playingVideoId}/hqdefault.jpg`,
                 }}
-              >
-                <Image
-                  source={{
-                    uri: `https://img.youtube.com/vi/${playingVideoId}/hqdefault.jpg`,
-                  }}
-                  style={{ width, height: 200, borderRadius: 10 }}
-                />
-              </TouchableOpacity>
-            ) : (
-              <YoutubePlayer
-                height={200}
-                width={width}
-                play={isPlaying}
-                videoId={playingVideoId}
-                onChangeState={onStateChange}
-                forceAndroidAutoplay={true}
-                initialPlayerParams={{
-                  controls: true,
-                  modestbranding: true,
-                }}
+                style={styles.videoThumbnail}
               />
-            )}
-          </>
-        )}
+            </TouchableOpacity>
+          ) : (
+            <YoutubePlayer
+              height={200}
+              width={width}
+              play={isPlaying}
+              videoId={playingVideoId}
+              onChangeState={onStateChange}
+              onReady={() => setIsPlaying(true)}
+              initialPlayerParams={{
+                controls: true,
+                modestbranding: true,
+                autoplay: true,
+              }}
+            />
+          ))}
 
         <View style={styles.headerContainer}>
           <CustomButton
@@ -137,84 +218,46 @@ const DetailPage: React.FC<Props> = ({ route, navigation }) => {
         </View>
 
         <View style={styles.movieActionContainer}>
-          <View
-            style={{
-              flexDirection: "row",
-              flexWrap: "wrap",
-              alignItems: "center",
-              flex: 1,
-            }}
-          >
-            <Text
-              style={{
-                color: "white",
-                marginLeft: 15,
-                fontSize: 24,
-                fontWeight: "800",
-                textShadowColor: "rgba(0,0,0,0.8)",
-                textShadowOffset: { width: 2, height: 2 },
-                textShadowRadius: 5,
-                flexShrink: 1,
-              }}
-            >
-              {movieDetail.title}
-            </Text>
-
-            <View style={{ flexDirection: "row", marginLeft: "auto" }}>
-              <CustomButton
-                isImageOnly
-                imageStyle={{ width: 50, height: 50 }}
-                onPress={() => console.log("Ekle tıklandı")}
-                icon={<Ionicons name="add" size={30} color="green" />}
-              />
-              <CustomButton
-                isImageOnly
-                buttonStyle={{ marginHorizontal: 10 }}
-                imageStyle={{ width: 50, height: 50 }}
-                onPress={() => console.log("İndir tıklandı")}
-                icon={<Ionicons name="warning" size={25} color="red" />}
-              />
-            </View>
+          <Text style={styles.movieTitle}>{movieDetail.title}</Text>
+          <View style={styles.favoriteButtonsContainer}>
+            <CustomButton
+              isImageOnly
+              buttonStyle={{ marginTop: 5 }}
+              imageStyle={{ width: 50, height: 50 }}
+              onPress={() => handleAddToFavorites(movieDetail.id)}
+              icon={<Ionicons name="add" size={35} color="green" />}
+            />
+            <CustomButton
+              isImageOnly
+              buttonStyle={{ marginHorizontal: 10, marginTop: 10 }}
+              imageStyle={{ width: 50, height: 50 }}
+              onPress={() => handleRemoveFromFavorites(movieDetail.id)}
+              icon={<Ionicons name="trash" size={25} color="red" />}
+            />
           </View>
         </View>
 
         <View style={styles.movieInfoContainer}>
-          <View style={{ marginTop: 8 }}>
-            <Text style={{ color: "white", fontSize: 15 }}>
-              95% Match {movieDetail.release_date?.slice(0, 4)} 2h 49m R HD
-            </Text>
+          <Text style={styles.infoText}>
+            95% Match {movieDetail.release_date?.slice(0, 4)} 2h 49m R HD
+          </Text>
 
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginTop: 5,
-                marginLeft: 5,
-              }}
-            >
-              <Ionicons
-                name="thumbs-up"
-                size={18}
-                color="green"
-                style={{ marginRight: 5 }}
-              />
-              <Text style={{ color: "white", fontSize: 15 }}>Most Liked</Text>
-            </View>
+          <View
+            style={{ flexDirection: "row", alignItems: "center", marginTop: 5 }}
+          >
+            <Ionicons
+              name="thumbs-up"
+              size={18}
+              color="green"
+              style={{ marginRight: 5 }}
+            />
+            <Text style={styles.infoText}>Most Liked</Text>
           </View>
 
           <CustomButton
-            buttonStyle={{
-              flexDirection: "row",
-              marginVertical: 10,
-              width: 330,
-              height: 40,
-              backgroundColor: "gray",
-              justifyContent: "center",
-              alignItems: "center",
-              borderRadius: 20,
-            }}
+            buttonStyle={styles.playButton}
+            buttonTextStyle={styles.playButtonText}
             buttonText={isPlaying ? "Pause" : "Play"}
-            buttonTextStyle={{ fontSize: 15, color: "white" }}
             onPress={() => {
               if (previewMode) {
                 setPreviewMode(false);
@@ -246,7 +289,6 @@ const DetailPage: React.FC<Props> = ({ route, navigation }) => {
             <Text style={{ color: "white", fontSize: 20, marginVertical: 5 }}>
               Top Cast
             </Text>
-
             <FlatList
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -254,30 +296,16 @@ const DetailPage: React.FC<Props> = ({ route, navigation }) => {
               keyExtractor={(item: any) => item.id.toString()}
               contentContainerStyle={{ paddingHorizontal: 0 }}
               renderItem={({ item }) => (
-                <View style={{ alignItems: "center", marginRight: 15 }}>
+                <View style={styles.castItem}>
                   <Image
                     source={{
                       uri: item.profile_path
                         ? `${IMAGE_URL}${item.profile_path}`
                         : "https://via.placeholder.com/80x120",
                     }}
-                    style={{
-                      width: 80,
-                      height: 120,
-                      borderRadius: 50,
-                      marginBottom: 5,
-                    }}
+                    style={styles.castImage}
                   />
-                  <Text
-                    style={{
-                      color: "white",
-                      fontSize: 12,
-                      width: 80,
-                      textAlign: "center",
-                    }}
-                    numberOfLines={2}
-                    ellipsizeMode="tail"
-                  >
+                  <Text style={styles.castName} numberOfLines={2}>
                     {item.name}
                   </Text>
                 </View>

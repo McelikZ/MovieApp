@@ -3,12 +3,13 @@ import { fetchMovieService, Movie } from "../services/movieAppService";
 
 export const fetchMovie = createAsyncThunk<
   { endpoint: string; movies: Movie[] },
-  string
->("data/movieData", async (endpoint, { rejectWithValue }) => {
+  { endpoint: string; pageLimit?: number }
+>("data/movieData", async ({ endpoint, pageLimit }, { rejectWithValue }) => {
   try {
-    const movies = await fetchMovieService(endpoint);
+    const movies = await fetchMovieService(endpoint, pageLimit || 3); 
     return { endpoint, movies };
   } catch (error: any) {
     return rejectWithValue(error.message || "Unknown error");
   }
 });
+

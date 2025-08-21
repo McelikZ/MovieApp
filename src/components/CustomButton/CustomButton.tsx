@@ -18,7 +18,7 @@ interface CustomButtonList {
   isTextOnly?: boolean;
   isImageOnly?: boolean;
   source?: ImageSourcePropType;
-  icon?: React.ReactNode; // Ionicons veya başka component
+  icon?: React.ReactNode; 
   buttonStyle?: StyleProp<ViewStyle>;
   buttonTextStyle?: StyleProp<TextStyle>;
   imageStyle?: StyleProp<ImageStyle>;

@@ -1,40 +1,24 @@
-// screens/FavoritePage/FavoritePage.style.ts
 import { StyleSheet } from "react-native";
 import { colors, fonts, radius, spacing } from "../../theme";
-
 export default StyleSheet.create({
   mainContainer: {
     flex: 1,
     backgroundColor: colors.neutral.black,
-  },
-  title: {
-    color: colors.neutral.white,
-    fontSize: fonts.sizes.large + 4,
-    fontWeight: "bold",
-    marginBottom: spacing.mediumLarge,
-    marginLeft: spacing.medium,
-  },
-  loadingContainer: {
-    flex: 1,
     justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: colors.neutral.black,
-  },
-  loadingText: {
-    color: colors.neutral.white,
   },
   emptyContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: colors.neutral.black,
+    marginTop: spacing.large,
   },
-  emptyText: {
+  title: {
+    fontSize: fonts.sizes.large,
+    fontWeight: "600",
     color: colors.neutral.white,
+    margin: spacing.mediumLarge,
   },
-  flatListContent: {
-    paddingBottom: spacing.large,
-  },
+
   moviePoster: {
     width: 110,
     height: 170,
@@ -42,5 +26,18 @@ export default StyleSheet.create({
     margin: spacing.tiny,
     borderWidth: 0.25,
     borderColor: colors.neutral.white,
+  },
+
+  loader: {
+    marginTop: spacing.medium,
+  },
+  listContent: {
+    paddingBottom: spacing.large,
+  },
+
+  emptyText: {
+    color: colors.neutral.gray,
+    fontSize: fonts.sizes.medium,
+    opacity: 0.8,
   },
 });

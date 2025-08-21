@@ -3,7 +3,7 @@ import { fetchMovie } from "./movieThunk";
 import type { Movie } from "../services/movieAppService";
 
 interface MovieState {
-  moviesByEndpoint: Record<string, Movie[]>; 
+  moviesByEndpoint: Record<string, Movie[]>;
   loadingByEndpoint: Record<string, boolean>;
   errorByEndpoint: Record<string, string | null>;
 }
@@ -28,7 +28,7 @@ export const movieSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchMovie.pending, (state, action) => {
-        const endpoint = action.meta.arg;
+        const endpoint = action.meta.arg.endpoint;
         state.loadingByEndpoint[endpoint] = true;
         state.errorByEndpoint[endpoint] = null;
       })
@@ -38,10 +38,10 @@ export const movieSlice = createSlice({
         state.loadingByEndpoint[endpoint] = false;
       })
       .addCase(fetchMovie.rejected, (state, action) => {
-        const endpoint = action.meta.arg;
+        const endpoint = action.meta.arg.endpoint;
         state.loadingByEndpoint[endpoint] = false;
         state.errorByEndpoint[endpoint] =
-          action.error.message || "Bir hata oluştu";
+          action.error.message || "Something went wrong";
       });
   },
 });

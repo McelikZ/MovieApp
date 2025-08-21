@@ -1,8 +1,15 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { HomePage, DetailPage, FavoritePage, TrendPage } from "../screens/index";
-import { Ionicons } from "@expo/vector-icons"; // Expo kullanıyorsan
+import {
+  HomePage,
+  DetailPage,
+  FavoritePage,
+  TrendPage,
+  MovieListPage,
+  Downloadpage,
+} from "../screens/index";
+import { Ionicons } from "@expo/vector-icons";
 
 export type TabParamList = {
   Home: undefined;
@@ -11,87 +18,65 @@ export type TabParamList = {
   Download: undefined;
 };
 
-// DetailPage parametre alacak şekilde güncelledik
 export type RootStackParamList = {
   MainTabs: undefined;
   DetailPage: { movieId: number; movieTitle?: string };
+  MovieListPage: { endpoint: string; title: string };
 };
 
 const Tab = createBottomTabNavigator<TabParamList>();
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+const renderIcon =
+  (iconName: keyof typeof Ionicons.glyphMap) =>
+  ({ color, size }: { color: string; size: number }) =>
+    <Ionicons name={iconName} size={size} color={color} />;
 
 const MainTabs: React.FC = () => (
   <Tab.Navigator
     initialRouteName="Home"
     screenOptions={{
       headerShown: false,
-      tabBarShowLabel: false, // label’ları gizle
-      tabBarActiveTintColor: "#ffffffff",
+      tabBarShowLabel: false,
+      tabBarActiveTintColor: "#ffffff",
       tabBarStyle: {
-        backgroundColor: "#0f1010ff",
+        backgroundColor: "#0f1010",
         position: "absolute",
         opacity: 0.9,
-        height: 90, // yükseklik artırıldı
+        height: 90,
         borderColor: "black",
       },
-      tabBarIconStyle: {
-        alignSelf: "center",
-        marginTop: 10,
-      },
+      tabBarIconStyle: { alignSelf: "center", marginTop: 10 },
     }}
   >
     <Tab.Screen
       name="Home"
       component={HomePage}
-      options={{
-        tabBarIcon: ({ color, size }) => (
-          <Ionicons name="home" size={size} color={color} />
-        ),
-      }}
+      options={{ tabBarIcon: renderIcon("home") }}
     />
     <Tab.Screen
       name="Favorite"
       component={FavoritePage}
-      options={{
-        tabBarIcon: ({ color, size }) => (
-          <Ionicons name="heart" size={size} color={color} />
-        ),
-      }}
+      options={{ tabBarIcon: renderIcon("heart") }}
     />
     <Tab.Screen
       name="Download"
-      component={HomePage}
-      options={{
-        tabBarIcon: ({ color, size }) => (
-          <Ionicons name="download" size={size} color={color} />
-        ),
-      }}
+      component={Downloadpage}
+      options={{ tabBarIcon: renderIcon("download") }}
     />
     <Tab.Screen
       name="Trend"
       component={TrendPage}
-      options={{
-        tabBarIcon: ({ color, size }) => (
-          <Ionicons name="film" size={size} color={color} />
-        ),
-      }}
+      options={{ tabBarIcon: renderIcon("film") }}
     />
   </Tab.Navigator>
 );
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
-
 const AppStack: React.FC = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen
-      name="MainTabs"
-      component={MainTabs}
-      options={{ headerShown: false }}
-    />
-    <Stack.Screen 
-      name="DetailPage" 
-      component={DetailPage} 
-      options={{ title: "Detail" }}
-    />
+    <Stack.Screen name="MainTabs" component={MainTabs} />
+    <Stack.Screen name="DetailPage" component={DetailPage} />
+    <Stack.Screen name="MovieListPage" component={MovieListPage} />
   </Stack.Navigator>
 );
 

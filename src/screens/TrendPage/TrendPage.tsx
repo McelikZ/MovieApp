@@ -1,185 +1,138 @@
+import React, { useEffect } from "react";
 import {
   Text,
   View,
   ImageBackground,
-  Dimensions,
   FlatList,
   ActivityIndicator,
 } from "react-native";
-import React, { useEffect } from "react";
 import styles from "./TrendPage.style";
-import { CustomButton, CustomImage } from "../../components";
+import { CustomButton } from "../../components";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMovie } from "../../redux/movieThunk";
 import type { RootState, AppDispatch } from "../../redux/store";
 import { IMAGE_URL } from "../../services/movieAppService";
 import { Ionicons } from "@expo/vector-icons";
 
-const { width, height } = Dimensions.get("window");
+const endpoints = [
+  { title: "Trending Now", endpoint: "popular" },
+];
 
-const TrendPage = () => {
+const _ID = 424;
+const _TITLE = "How to Train Your Dragon";
+
+const TrendPage = ({ navigation }: { navigation: any }) => {
   const dispatch: AppDispatch = useDispatch();
-  const trendingMovies = useSelector(
-    (state: RootState) => state.movie.moviesByEndpoint["popular"] || []
-  );
-  const loading = useSelector(
-    (state: RootState) => state.movie.loadingByEndpoint["popular"] || false
-  );
 
   useEffect(() => {
-    dispatch(fetchMovie("popular"));
+    endpoints.forEach((sec) =>
+      dispatch(fetchMovie({ endpoint: sec.endpoint, pageLimit: 1 }))
+    );
   }, [dispatch]);
 
+  const moviesByEndpoint = useSelector(
+    (state: RootState) => state.movie.moviesByEndpoint
+  );
+  const loadingByEndpoint = useSelector(
+    (state: RootState) => state.movie.loadingByEndpoint
+  );
+
   return (
-    <View style={[styles.mainContainer, { flex: 1, backgroundColor: "black" }]}>
+    <View style={styles.mainContainer}>
       <ImageBackground
         source={{
-          uri: "https://image.tmdb.org/t/p/original/5oNOiqrgnX2m2YoDIf9lfqiIKvm.jpg",
+          uri: "https://www.themoviedb.org/t/p/w1280/doGEE2DgjET0XK0k9BozsMBES5H.jpg",
         }}
         resizeMode="cover"
-        style={{ width, height: (height * 2) / 3 }}
+        style={styles.heroImage}
       >
-        <View style={styles.headerContainer}>
-          <CustomButton
-            isImageOnly={true}
-            imageStyle={{
-              width: 60,
-              height: 60,
-              marginBottom: 10,
-            }}
-            onPress={() => console.log("Tıklandı...")}
-            icon={<Ionicons name="person-circle" size={50} color="white" />}
-          />
-          <CustomButton
-            isImageOnly={true}
-            imageStyle={{
-              width: 60,
-              height: 60,
-              marginBottom: 10,
-            }}
-            onPress={() => console.log("Tıklandı...")}
-            icon={<Ionicons name="search-circle" size={50} color="white" />}
-          />
-        </View>
-
-        <View
-          style={{
-            position: "absolute",
-            bottom: 20,
-            left: 0,
-            right: 0,
-            flexDirection: "row",
-            justifyContent: "center",
-            gap: 15,
-          }}
-        >
+        <View style={styles.detailContainer}>
           <CustomButton
             buttonText="Play"
-            buttonTextStyle={{ color: "white", fontSize: 14 }}
-            buttonStyle={{
-              flexDirection: "row",
-              backgroundColor: "rgba(0, 0, 0, 0.75)",
-              paddingHorizontal: 10,
-              paddingVertical: 4,
-              borderRadius: 15,
-              width: 100,
-              height: 35,
-              marginBottom: 40,
-              alignItems: "center",
-              justifyContent: "center",
-              borderWidth: 1,
-              borderColor: "white",
-            }}
-            onPress={() => console.log("Play clicked")}
+            buttonTextStyle={styles.detailButtonText}
+            buttonStyle={styles.detailButton}
+            onPress={() =>
+              navigation.navigate("DetailPage", {
+                movieId: _ID,
+                movieTitle: _TITLE,
+              })
+            }
             icon={
               <Ionicons name="caret-forward-outline" size={20} color="white" />
             }
           />
+
           <CustomButton
             buttonText="Details"
-            buttonTextStyle={{ color: "white", fontSize: 14 }}
-            buttonStyle={{
-              backgroundColor: "rgba(0, 0, 0, 0.75)",
-              paddingHorizontal: 10,
-              paddingVertical: 4,
-              borderRadius: 15,
-              width: 100,
-              height: 35,
-              marginBottom: 40,
-              alignItems: "center",
-              justifyContent: "center",
-              borderWidth: 1,
-              borderColor: "white",
-            }}
-            onPress={() => console.log("Details clicked")}
+            buttonTextStyle={styles.detailButtonText}
+            buttonStyle={styles.detailButton}
+            onPress={() =>
+              navigation.navigate("DetailPage", {
+                movieId: _ID,
+                movieTitle: _TITLE,
+              })
+            }
           />
         </View>
       </ImageBackground>
 
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: "black",
-          paddingVertical: 15,
-          marginTop: -20,
-          borderTopLeftRadius: 20,
-          borderTopRightRadius: 20,
-        }}
-      >
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginHorizontal: 20,
-            marginBottom: 10,
-            marginTop: 10,
-          }}
-        >
-          <Text style={{ color: "white", fontSize: 25, fontWeight: "500" }}>
-            Trending Now
-          </Text>
+      <View style={styles.contentContainer}>
+        {endpoints.map((sec, index) => {
+          const movies = moviesByEndpoint[sec.endpoint] || [];
+          const loading = loadingByEndpoint[sec.endpoint] || false;
 
-          <CustomButton
-            isTextOnly
-            buttonText="See all"
-            buttonTextStyle={{ color: "gray", fontSize: 15, opacity: 0.75 }}
-            onPress={() => console.log("See all clicked")}
-          />
-        </View>
+          return (
+            <View key={`section-${index}`} style={styles.sectionContainer}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>{sec.title}</Text>
+                <CustomButton
+                  isTextOnly
+                  buttonText="See all"
+                  buttonTextStyle={styles.seeAllText}
+                  onPress={() =>
+                    navigation.navigate("MovieListPage", {
+                      endpoint: sec.endpoint,
+                      title: sec.title,
+                    })
+                  }
+                />
+              </View>
 
-        {loading ? (
-          <ActivityIndicator size="large" color="white" />
-        ) : (
-          <FlatList
-            horizontal
-            data={trendingMovies}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <CustomButton
-                onPress={() => console.log(item.title)}
-                isImageOnly
-                source={{
-                  uri: item.fullPosterPath || `${IMAGE_URL}${item.poster_path}`,
-                }}
-                imageStyle={{
-                  width: 110,
-                  height: 170,
-                  borderWidth: 0.25,
-                  borderRadius: 5,
-                  borderColor: "white",
-                  resizeMode: "cover",
-                  marginHorizontal: 5,
-                }}
-              />
-            )}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{
-              paddingHorizontal: 20,
-              paddingBottom: 100,
-            }}
-          />
-        )}
+              {loading ? (
+                <ActivityIndicator size="large" color="white" />
+              ) : (
+                <FlatList
+                  horizontal
+                  data={movies}
+                  keyExtractor={(item, index) =>
+                    item.id
+                      ? item.id.toString() + "-" + index
+                      : index.toString()
+                  }
+                  renderItem={({ item }) => (
+                    <CustomButton
+                      onPress={() =>
+                        navigation.navigate("DetailPage", {
+                          movieId: item.id,
+                          movieTitle: item.title,
+                        })
+                      }
+                      isImageOnly
+                      source={{
+                        uri:
+                          item.fullPosterPath ||
+                          `${IMAGE_URL}${item.poster_path}`,
+                      }}
+                      imageStyle={styles.movieImage}
+                    />
+                  )}
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.flatListContent}
+                />
+              )}
+            </View>
+          );
+        })}
       </View>
     </View>
   );

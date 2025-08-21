@@ -10,6 +10,7 @@ export default {
   neutral: {
     black: "#000000",
     white: "#ffffff",
+    gray: "#808080",
     whiteTransparent90: "#ffffffE6",
     lightGray: "#f2f2f2ff",
   },
@@ -26,11 +27,11 @@ export default {
   },
   status: {
     error: "#f44336",
-    loading:"#00000080 ",
+    loading: "#00000080 ",
   },
   teal: {
     dark: "#1d5a58",
-    deep: "#1d5a58", 
+    deep: "#1d5a58",
     green: "#25625e",
   },
 };
