@@ -14,9 +14,7 @@ import type { RootState, AppDispatch } from "../../redux/store";
 import { IMAGE_URL } from "../../services/movieAppService";
 import { Ionicons } from "@expo/vector-icons";
 
-const endpoints = [
-  { title: "Trending Now", endpoint: "popular" },
-];
+const endpoints = [{ title: "Trending Now", endpoint: "popular" }];
 
 const _ID = 424;
 const _TITLE = "How to Train Your Dragon";
