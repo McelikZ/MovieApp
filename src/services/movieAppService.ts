@@ -26,7 +26,7 @@ export interface Movie {
   cast?: CastMember[];
 }
 
-const API_KEY = "24f10a55f1f556fa6250794d0f21132f";
+const API_KEY = "API KEY";
 const BASE_URL = "https://api.themoviedb.org/3";
 export const IMAGE_URL = "https://image.tmdb.org/t/p/w500";
 
